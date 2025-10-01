@@ -98,6 +98,28 @@ class MeteocatClient:
         results.sort(key=lambda entry: entry.get("date"))
         return results
 
+    def fetch_daily_variable_statistics(
+        self,
+        station_code: str,
+        variable_code: str | int,
+        *,
+        year: int,
+        month: int,
+    ) -> List[Dict[str, object]]:
+        """Fetch the daily statistics for a variable and station.
+
+        The Meteocat API exposes daily aggregated statistics per variable
+        organised by month. This helper returns the raw list of entries for a
+        given station, variable, year and month. The structure of the returned
+        dictionaries matches the payload from the API, which typically includes
+        keys such as ``"data"`` (date) and ``"valor"`` (value).
+        """
+
+        path = f"/dades/variables/{variable_code}/estadistica/diaria"
+        params = {"codiEstacio": station_code, "any": year, "mes": month}
+        payload = self._request_json("GET", path, params=params)
+        return self._extract_list(payload, default_key="dades")
+
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
